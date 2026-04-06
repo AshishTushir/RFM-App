@@ -120,4 +120,5 @@ streamlit run app.py
 # 👤 Author
 
 Ashish Tushir
-pip install -r requirements.txt
+tushirgetsmail@gmail.com
+
