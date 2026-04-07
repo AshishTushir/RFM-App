@@ -18,17 +18,32 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
+import base64
 
+def display_pdf(file_path):
+    with open(file_path, "rb") as f:
+        pdf_bytes = f.read()
+
+    base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
+
+    pdf_display = f"""
+    <iframe src="data:application/pdf;base64,{base64_pdf}" 
+    width="100%" height="700px" type="application/pdf">
+    </iframe>
+    """
+
+    import streamlit as st
+    st.markdown(pdf_display, unsafe_allow_html=True)
 # ==========================================================
 # ⚙️ PAGE CONFIG
 # ==========================================================
 st.set_page_config(
-    page_title="RFM Intelligence Dashboard",
+    page_title="RFM Intelligence Dashboard 🤖",
     page_icon="📊",
     layout="wide"
 )
 
-st.title("RFM Intelligence Dashboard")
+st.title("RFM Intelligence Dashboard 🤖")
 st.warning("🌙 For best experience, view this dashboard in **dark mode** — visuals are optimized for dark backgrounds.")
 
 # ==========================================================
@@ -50,18 +65,407 @@ def load_models():
 df, explain_df = load_data()
 scaler, kmeans, cluster_labels = load_models()
 
-# ==========================================================
-# 🧩 TWO MAIN TABS ONLY
-# ==========================================================
-tab1, tab2 = st.tabs([
-    "📊 Analysis & Insights",
-    "🔮 Prediction & Strategy"
-])
+# LOAD DATA FROM GITHUB
+    # -------------------------------
+    
+@st.cache_data
+def load_data():
+    #url = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/RFM_data.csv"
+    #return pd.read_csv(url)
+    rfm_df = pd.read_csv("RFM_data.csv", encoding="latin1")
+    return rfm_df
+    # 🔥 ADD THIS LINE
+rfm_df = load_data()
+
 
 # ==========================================================
-# 📊 TAB 1: ANALYSIS & INSIGHTS
+# 🧩 Four MAIN TABS ONLY
 # ==========================================================
+tab0, tab1, tab2, tab3 = st.tabs([
+    "📄 Project Summary & Proof of Work",
+    "🎯 Power BI Insights & Strategy",
+    "🤖 ML Analysis & Insights",
+    "🔮 Prediction & Strategy"
+    
+    
+])
+# ==========================================================
+# 🔮 TAB 0: Project Summary
+# ==========================================================
+with tab0:
+    st.markdown(
+    "<h2 style='color:#FFD700;'>📄 Project Overview</h2>",
+    unsafe_allow_html=True
+)
+    st.info("""
+This section provides a complete overview of the project.
+
+👉 Includes:
+- End-to-end pipeline (SQL → BI → ML → App)
+- Business insights and segmentation logic
+- Machine learning validation
+- Final conclusions and strategy
+
+📌 This document serves as the **single source of truth** for the project.
+""")
+    
+   
+    # Convert image to base64
+    def get_base64_image(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+        
+    img_base64 = get_base64_image("images/FinalPipeline.png")
+        
+        # Display with styled container
+    st.markdown(f"""
+        <div style="
+            border: 4px solid #FFD700;
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 25px;
+            margin-bottom: 35px;
+            background-color: #111111;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+        ">
+            <img src="data:image/png;base64,{img_base64}" 
+                 style="width:100%; border-radius:20px;">
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown(
+    "<h3 style='color:#ff7f0e;'>1. Project Report</h3>",
+    unsafe_allow_html=True
+)
+
+    # ===============================
+    # 📄 MAIN PDF VIEWER
+    # ===============================
+    display_pdf("pdfs/project_report.pdf")
+
+    # ===============================
+    # ⬇️ DOWNLOAD SUMMARY (NEW)
+    # ===============================
+   
+
+    st.markdown("---")
+
+    # ===============================
+    # OTHER DOWNLOADS
+    # ===============================
+    
+    st.markdown(
+    "<h3 style='color:#ff7f0e;'>2. Proof of Work ⬇️ </h3>",
+    unsafe_allow_html=True
+)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.download_button(
+            "🗄️ SQL Script",
+            data=open("SQL/report_customers.sql", "rb"),
+            file_name="report_customers.sql"
+        )
+
+        st.download_button(
+            "📊 Power BI Dashboard (.pbix)",
+            data=open("Power BI Report/RFM Analysis.pbix", "rb"),
+            file_name="RFM Analysis.pbix"
+        )
+        st.markdown("""
+    🔗 **Connect**  
+    👉 tushirgetsmail@gmail.com
+    """)
+    with col2:
+        st.download_button(
+            "🤖 ML Modeling",
+            data=open("Modelling/RFM Model.ipynb", "rb"),
+            file_name="RFM Model.ipynb"
+        )
+        st.download_button(
+        label="📥 Download Full Project Summary (PDF)",
+        data=open("pdfs/project_report.pdf", "rb"),
+        file_name="project_report.pdf"
+    )
+        st.markdown("""
+🔗 **GitHub Repository**  
+👉 https://github.com/AshishTushir/RFM-App
+""")
+
+    st.markdown("---")
+
+    st.caption("📌 End-to-end transparency: data → insights → modeling → deployment")
+# ================================
+# TAB 1: BUSINESS INSIGHTS (RFM)
+# ================================
 with tab1:
+
+    # -------------------------------
+    # TITLE + INTRO
+    # -------------------------------
+
+    st.markdown(
+    "<h2 style='color:#FFD700;'>🎯 Business Insights & Market Targeting</h2>",
+    unsafe_allow_html=True
+)
+
+    st.info("""
+    This section explains customer segmentation using rule-based RFM scoring derived from business logic.
+    👉 Focus:
+    - Understand customer behavior using Recency, Frequency, Monetary
+    - Identify revenue-driving segments
+    - Design targeted marketing strategies
+    """)
+
+# -------------------------------
+# RULE-BASED SEGMENTATION TABLE
+# -------------------------------
+
+    rfm_rules = pd.DataFrame({
+        "Segment": [
+            "🏆 Champions",
+            "⭐ Loyal Customers",
+            "💰 Big Spenders",
+            "⚠️ At Risk",
+            "❌ Lost",
+            "🔹 Others"
+        ],
+        
+        "Recency (R)": [
+            "≤ 2",
+            "≤ 3",
+            "≥ 3",
+            "≥ 3",
+            "= 5",
+            "-"
+        ],
+        
+        "Frequency (F)": [
+            "≤ 2",
+            "≤ 2",
+            "-",
+            "≤ 3",
+            "= 5",
+            "-"
+        ],
+        
+        "Monetary (M)": [
+            "≤ 2",
+            "-",
+            "≤ 2",
+            "-",
+            "= 5",
+            "-"
+        ],
+        
+        "Description": [
+            "Best customers across all metrics",
+            "Frequent and recent buyers",
+            "High spenders but not recent",
+            "Previously active, now inactive",
+            "Low engagement across all metrics",
+            "Remaining customers"
+        ]
+    })
+
+    st.table(rfm_rules)
+    # -------------------------------
+    # KPI CARDS
+    # -------------------------------
+    # FILTER (SEGMENT SELECTOR)
+    segments = sorted(rfm_df['Customer_Segment'].dropna().unique())
+    selected_segments = st.multiselect(
+        "Select Segment(s)",
+        options=segments,
+        default=segments
+    )
+    # Apply filter
+    filtered_df = rfm_df[rfm_df['Customer_Segment'].isin(selected_segments)]
+
+    # -------------------------------
+    # POWER BI DASHBOARD IMAGE
+    # -------------------------------
+    
+
+    
+        # Convert image to base64
+    def get_base64_image(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+        
+    img_base64 = get_base64_image("images/rfm_power_1.png")
+        
+        # Display with styled container
+    st.markdown(f"""
+        <div style="
+            border: 4px solid #FFD700;
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 25px;
+            margin-bottom: 35px;
+            background-color: #111111;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+        ">
+            <img src="data:image/png;base64,{img_base64}" 
+                 style="width:100%; border-radius:10px;">
+        </div>
+        """, unsafe_allow_html=True)
+    # -------------------------------
+    # REVENUE BY SEGMENT (BAR)
+    # -------------------------------
+   
+    st.markdown(
+    "<h3 style='color:#ff7f0e;'> 1. Revenue Contribution by Segment </h3>",
+    unsafe_allow_html=True
+)
+
+    
+    #
+    
+    segment_revenue = (
+        filtered_df.groupby('Customer_Segment', as_index=False)['Monetary']
+        .sum()
+    )
+
+    fig_bar = px.bar(
+        segment_revenue,
+        x='Customer_Segment',
+        y='Monetary',
+        text_auto=True,
+        title="Revenue Distribution Across Customer Segments"
+    )
+
+    fig_bar.update_layout(
+        template="plotly_dark",
+        xaxis_title="Customer Segment",
+        yaxis_title="Total Revenue"
+    )
+
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    
+    # PIE CHART (REVENUE SHARE)
+    
+    fig_pie = px.pie(
+        segment_revenue,
+        names='Customer_Segment',
+        values='Monetary',
+        title="Revenue Share by Segment"
+    )
+
+    fig_pie.update_layout(template="plotly_dark")
+
+    st.plotly_chart(fig_pie, use_container_width=True)
+
+
+    # -------------------------------
+    # KEY INSIGHTS
+    # -------------------------------
+   
+    st.markdown(
+    "<h3 style='color:#ff7f0e;'> 2. Key Business Insightss </h3>",
+    unsafe_allow_html=True
+)
+
+    st.success("""
+• Loyal Customers form the largest segment → strong retention base  
+• Big Spenders generate high revenue despite lower frequency  
+• At Risk customers show high recency → potential churn  
+• Champions are fewer but extremely valuable  
+
+👉 Insight:
+Revenue is concentrated among high-value customers.
+""")
+
+    # -------------------------------
+    # STRATEGY TABLE (DYNAMIC)
+    # -------------------------------
+   
+    st.markdown(
+    "<h3 style='color:#ff7f0e;'>  3. Strategy Summary Tables </h3>",
+    unsafe_allow_html=True
+)
+    import pandas as pd
+    
+    strategy_data = {
+        "Category": ["Target", "Why?", "Strategy", "Goal"],
+    
+        "🎯 Loyalty Programs": [
+            "Loyal Customers",
+            "High frequency → engaged users\nClose to becoming Champions",
+            "Rewards programs\nMembership tiers\nEarly access",
+            "Increase spending → convert to Champions"
+        ],
+    
+        "💸 Smart Discount Strategy": [
+            "At Risk + Big Spenders",
+            "High recency → not purchasing recently\nHigh value but low engagement",
+            "Personalized discounts\nLimited-time offers",
+            "Reactivate customers before churn"
+        ],
+    
+        "🔁 Retargeting Campaigns": [
+            "At Risk + Lost",
+            "Low engagement\nCustomers drifting away",
+            "Email campaigns\nAds + notifications",
+            "Bring customers back"
+        ]
+    }
+    
+    strategy_df = pd.DataFrame(strategy_data)
+    
+    st.dataframe(strategy_df, use_container_width=True)
+
+    # -------------------------------
+    # BUSINESS VALUE
+    # -------------------------------
+   
+    st.markdown(
+    "<h3 style='color:#ff7f0e;'> 4. Why RFM Works 🏆</h3>",
+    unsafe_allow_html=True
+)
+
+    st.info("""
+• Simple and interpretable  
+• Business-friendly segmentation  
+• Enables quick targeting  
+• Identifies high-value customers  
+""")
+
+    # -------------------------------oard in form of information to a separate header
+    # LIMITATIONst below the imageof power bi dashb
+    # -------------------------------tion ju
+    
+    st.markdown(
+    "<h3 style='color:#ff7f0e;'> 5. Limitation of Rule-Based Approach ⚠️ </h3>",
+    unsafe_allow_html=True
+)
+
+    st.warning("""
+• Fixed rules → rigid segmentation  
+• Cannot capture hidden behavior  
+• May misclassify customers  
+""")
+
+    # -------------------------------
+    # TRANSITION TO ML
+    # -------------------------------
+    
+   
+
+
+    st.success("""🤖 Moving to Machine Learning 
+    
+To validate segmentation and uncover hidden patterns, we use K-Means clustering in the next tab.
+
+👉 This answers: Are we segmenting customers correctly?
+""")
+    
+# ==========================================================
+# 📊 TAB 2: ANALYSIS & INSIGHTS
+# ==========================================================
+with tab2:
 
     
     st.markdown(
@@ -263,9 +667,9 @@ with tab1:
     st.plotly_chart(fig, use_container_width=True)
 
 # ==========================================================
-# 🔮 TAB 2: PREDICTION & STRATEGY
+# 🔮 TAB 3: PREDICTION & STRATEGY
 # ==========================================================
-with tab2:
+with tab3:
 
     
     st.markdown(
