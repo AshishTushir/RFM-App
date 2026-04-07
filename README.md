@@ -2,8 +2,7 @@
 
 ## 🚀 Live App
 
-👉 https://your-app-link.streamlit.app\
-*(Replace with your deployed link)*
+👉 https://tushir-ashish93-rfm.streamlit.app/
 
 ------------------------------------------------------------------------
 
@@ -119,5 +118,5 @@ streamlit run app.py
 
 # 👤 Author
 
-Ashish Tushir
-pip install -r requirements.txt
+- Ashish Tushir
+- tushirgetsmail@gmail.com
